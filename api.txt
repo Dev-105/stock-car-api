@@ -1,0 +1,182 @@
+API Endpoints Reference
+=======================
+
+Base path: `/api`
+Authentication: `auth:sanctum` for protected routes. Use Sanctum token in `Authorization: Bearer <token>`.
+
+Public routes
+-------------
+1. POST /register
+   - Description: Register a new user.
+   - Body:
+     - username (string, required)
+     - email (string, required)
+     - password (string, required)
+     - password_confirmation (string, required)
+     - phone (string, optional)
+     - city (string, optional)
+     - address (string, optional)
+   - Response: user object and auth token.
+
+2. POST /login
+   - Description: Login and obtain access token.
+   - Body:
+     - email (string, required)
+     - password (string, required)
+   - Response: user object and auth token.
+
+3. GET /products
+   - Description: List products with optional filters.
+   - Query parameters:
+     - theme (string, optional)
+     - min_price (numeric, optional)
+     - max_price (numeric, optional)
+     - tag (string, optional)
+     - sort_by (string, optional)
+     - sort_order (string, optional)
+     - per_page (integer, optional)
+   - Response: paginated product list.
+
+4. GET /products/{id}
+   - Description: Get a single product by ID.
+   - Response: product details with images, tags, reviews, likes.
+
+5. GET /products/theme/{theme}
+   - Description: Search products by theme.
+   - Response: matching products.
+
+6. GET /products/tag/{tagName}
+   - Description: Get products by tag name.
+   - Response: products matching given tag.
+
+7. POST /promo-codes/verify
+   - Description: Verify that a promo code is valid.
+   - Body:
+     - code (string, required)
+   - Response: discount percentage and expiry info.
+
+Protected routes (require token)
+--------------------------------
+Auth and user
+--------------
+8. POST /logout
+   - Description: Revoke current user token.
+
+9. GET /me
+   - Description: Get authenticated user info.
+
+10. POST /refresh
+    - Description: Refresh the current auth token and receive a new one.
+
+11. GET /profile
+    - Description: Get authenticated user profile, likes, reviews, and commands.
+
+12. PUT /profile
+    - Description: Update profile fields.
+    - Body: any of username, email, phone, city, address, current_password, new_password, new_password_confirmation.
+
+13. POST /profile/image
+    - Description: Upload/update profile image.
+    - Body: profile_image (file, required)
+
+14. GET /likes
+    - Description: List the authenticated user's liked products.
+
+15. POST /likes/{productId}
+    - Description: Toggle like/unlike for a product.
+
+16. GET /fidelity-points
+    - Description: Get current user's fidelity points.
+
+Cart routes
+-----------
+17. GET /cart
+    - Description: Get current cart contents.
+
+18. POST /cart/add
+    - Description: Add a product to cart.
+    - Body:
+      - product_id (integer, required)
+      - quantity (integer, required)
+
+19. PUT /cart/{productId}
+    - Description: Update quantity for a cart item.
+    - Body:
+      - quantity (integer, required)
+
+20. DELETE /cart/{productId}
+    - Description: Remove a product from the cart.
+
+21. DELETE /cart
+    - Description: Clear all cart items.
+
+Order routes
+------------
+22. GET /orders
+    - Description: Get orders for authenticated user.
+
+23. POST /orders
+    - Description: Create a new order from the cart.
+    - Body:
+      - promo_code (string, optional)
+
+24. GET /orders/{id}
+    - Description: Get a specific order by ID.
+
+25. POST /orders/{id}/cancel
+    - Description: Cancel an order.
+
+Admin-only routes
+-----------------
+These routes are inside `Route::middleware('admin')` and require the authenticated user to be an admin.
+
+26. POST /products
+    - Description: Create a new product.
+    - Body: title, description, price, discount_percentage, stock, theme, tags, images.
+
+27. PUT /products/{id}
+    - Description: Update a product.
+
+28. DELETE /products/{id}
+    - Description: Delete a product.
+
+29. POST /products/{id}/images
+    - Description: Add an image to a product.
+    - Body: image (file, required)
+
+30. DELETE /products/images/{imageId}
+    - Description: Delete a product image.
+
+31. GET /admin/orders
+    - Description: Admin list all orders.
+
+32. PUT /admin/orders/{id}/status
+    - Description: Update order status.
+    - Body:
+      - status (pending, processing, completed, cancelled)
+
+33. GET /admin/users
+    - Description: Admin list all users.
+
+34. PUT /admin/users/{id}/role
+    - Description: Change a user's role.
+    - Body:
+      - role (admin, user)
+
+35. DELETE /admin/users/{id}
+    - Description: Delete a user.
+
+36. GET /admin/promo-codes
+    - Description: List all promo codes.
+
+37. POST /admin/promo-codes
+    - Description: Create a promo code.
+    - Body: code, discount_percentage, max_usage, expires_at.
+
+38. DELETE /admin/promo-codes/{id}
+    - Description: Delete a promo code.
+
+Notes
+-----
+- All protected routes require a valid Bearer token from login or register.
+- Make sure your API base is configured correctly in your server/webserver and that `bootstrap/app.php` loads `routes/api.php`.

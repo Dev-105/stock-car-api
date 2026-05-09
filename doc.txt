@@ -1,0 +1,78 @@
+# Backend API Documentation for Frontend Developers
+
+This document explains how the Laravel backend is structured and how you should interact with it from the frontend.
+
+## 1. Models (The Data Structure)
+Models represent the tables in our database. As a frontend developer, you mostly care about the fields available in these models when you receive JSON responses.
+
+- **Location**: `app/Models/`
+- **Key Concept**: The `$fillable` array in each model defines which fields you can send in a `POST` or `PUT` request.
+- **Example (User Model)**:
+  Fields: `username`, `email`, `phone`, `city`, `address`, `role`, `fidelity_points`.
+- **Relationships**: Models also define how data is linked (e.g., a User has many Orders). When we "load" relationships, they appear as nested objects in the JSON response.
+
+## 2. Controllers (The Logic)
+Controllers handle your requests, perform validation, and return JSON responses.
+
+- **Location**: `app/Http/Controllers/API/`
+- **How it works**:
+  1. You send a request to a route (e.g., `POST /api/login`).
+  2. The route maps to a specific method in a Controller (e.g., `AuthController@login`).
+  3. The controller validates your data. If it fails, it returns a `422 Unprocessable Entity` error with details.
+  4. If successful, it returns a JSON object usually containing `success: true` and the requested data.
+
+## 3. Sanctum (Authentication)
+We use **Laravel Sanctum** for secure API authentication.
+
+- **Login/Register**: When you log in or register, the backend returns a `token` (a long string).
+- **Using the Token**: You must store this token on the frontend (localStorage or Cookie). For every protected request, you must include it in the Headers:
+  ```
+  Authorization: Bearer <your_token_here>
+  ```
+- **Token Lifecycle**:
+  - `POST /api/logout`: Deletes the current token on the server.
+  - `POST /api/refresh`: Deletes the old token and gives you a new one.
+
+## 4. Middleware (The Guards)
+Middleware are filters that run *before* the request reaches the controller logic.
+
+- **auth:sanctum**: This is the most common middleware. It checks if the `Bearer` token you sent is valid. If not, it returns `401 Unauthorized`.
+- **admin**: A custom middleware we use to ensure only users with the `admin` role can access certain endpoints (like deleting products or viewing all users). If a regular user tries to access these, they get a `403 Forbidden`.
+
+## 5. Typical API Response Structure
+We try to keep responses consistent:
+
+**Success Response:**
+```json
+{
+    "success": true,
+    "message": "Operation successful",
+    "data": { ... }
+}
+```
+
+**Error Response (Validation):**
+```json
+{
+    "success": false,
+    "errors": {
+        "email": ["The email field is required."],
+        "password": ["The password must be at least 6 characters."]
+    }
+}
+```
+
+**General Error:**
+```json
+{
+    "success": false,
+    "message": "Invalid credentials"
+}
+```
+
+## 6. Important Routes Summary
+- **Public**: `/register`, `/login`, `/products`, `/products/{id}`.
+- **Protected (User)**: `/profile`, `/cart`, `/orders`, `/likes`.
+- **Protected (Admin)**: `/admin/users`, `/admin/orders`, `POST /products` (add product).
+
+Refer to `routes/api.php` for the full list of available endpoints.
