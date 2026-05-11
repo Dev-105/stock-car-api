@@ -7,6 +7,7 @@ use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\PromoCodeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\PayPalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// PayPal endpoints are protected and registered below inside auth middleware
 
 // Product public routes
 Route::get('/products', [ProductController::class, 'index']);
@@ -55,6 +58,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
+
+    // PayPal protected endpoints
+    Route::post('/paypal/create-order', [PayPalController::class, 'createOrder']);
+    Route::post('/paypal/capture-order/{orderId}', [PayPalController::class, 'captureOrder']);
 
     // Review routes
     Route::post('/products/{productId}/reviews', [\App\Http\Controllers\API\ReviewController::class, 'store']);

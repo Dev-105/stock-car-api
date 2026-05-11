@@ -41,7 +41,7 @@ class Command extends Model
     // Accessors
     public function getFormattedTotalAttribute()
     {
-        return number_format($this->total, 2) . ' €';
+        return number_format($this->total, 2) . ' MAD';
     }
     
     public function getStatusLabelAttribute()
