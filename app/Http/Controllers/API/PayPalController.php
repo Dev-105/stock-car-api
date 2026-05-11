@@ -10,7 +10,8 @@ use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\PromoCode;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentSuccessMail;
 class PayPalController extends Controller
 {
     protected $clientId;
@@ -248,7 +249,7 @@ class PayPalController extends Controller
             }
 
             DB::commit();
-
+            Mail::to($user->email)->send(new PaymentSuccessMail($order));
             return response()->json(['success' => true, 'order' => $order->load('lignes.product'), 'paypal' => $captureData]);
         } catch (\Exception $e) {
             DB::rollback();

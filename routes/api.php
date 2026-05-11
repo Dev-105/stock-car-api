@@ -14,7 +14,17 @@ use App\Http\Controllers\API\PayPalController;
 | API Routes
 |--------------------------------------------------------------------------
 */
+use Illuminate\Support\Facades\Mail;
 
+Route::get('/test-mail', function () {
+
+    Mail::raw('Test email from Laravel ✅', function ($message) {
+        $message->to('khouilidayoub4@gmail.com')
+                ->subject('Laravel Test Mail');
+    });
+
+    return 'Email sent!';
+});
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
